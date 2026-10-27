@@ -1,0 +1,259 @@
+@startuml class_diagram
+title Nhóm 05 – Trò chơi Rắn săn mồi: Sơ đồ lớp
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+left to right direction
+
+package "model" {
+  abstract class GameObject {
+    -position : Point
+    -color : Color
+    #GameObject(position, color)
+    +{abstract} draw(g : Graphics2D, cellSize : int)
+    +occupies(cell : Point) : boolean
+    +getPosition() : Point
+    +getColor() : Color
+  }
+  class Snake {
+    -body : LinkedList<Point>
+    -direction : Direction
+    +changeDirection(d : Direction)
+    +move()
+    +grow(n : int)
+    +shrink(n : int)
+    +hasHitItself() : boolean
+    +getBody() : List<Point>
+    +draw(g, cellSize)
+  }
+  class Food {
+    -points : int
+    +getPoints() : int
+    +applyTo(snake : Snake)
+    +getEatSound() : SoundEffect
+    +update(deltaMs : int)
+    +isExpired() : boolean
+    +draw(g, cellSize)
+  }
+  class BonusFood {
+    -remainingMs : int
+    +update(deltaMs : int)
+    +isExpired() : boolean
+    +getRemainingMs() : int
+    +getEatSound() : SoundEffect
+    +draw(g, cellSize)
+  }
+  class PoisonFood <<BONUS>> {
+    -remainingMs : int
+    +applyTo(snake : Snake)
+    +getEatSound() : SoundEffect
+    +update(deltaMs : int)
+    +isExpired() : boolean
+    +draw(g, cellSize)
+  }
+  class Player <<BONUS>> {
+    -number : int
+    -name : String
+    -snake : Snake
+    -score : int
+    -alive : boolean
+    +addScore(points : int)
+    +die()
+  }
+  enum SoundEffect {
+    EAT
+    BONUS
+    POISON
+    GAME_OVER
+  }
+  class Obstacle {
+    +draw(g, cellSize)
+  }
+  enum Direction {
+    UP
+    DOWN
+    LEFT
+    RIGHT
+    +isOpposite(d : Direction) : boolean
+    +opposite() : Direction
+  }
+  enum GameState {
+    READY
+    RUNNING
+    PAUSED
+    GAME_OVER
+    +canTransitionTo(next : GameState) : boolean
+    +togglePause() : GameState
+  }
+  interface LevelConfig {
+    +getNumber() : int
+    +getName() : String
+    +getDescription() : String
+    +createObstacles() : List<Obstacle>
+  }
+  abstract class AbstractLevel {
+    #obstaclesFromLayout(rows : String...) : List<Obstacle>
+    +{abstract} createObstacles() : List<Obstacle>
+  }
+  class Level1
+  class Level2
+  class Level3
+  class Levels <<utility>> {
+    +{static} all() : List<LevelConfig>
+  }
+  class ScoreRecord <<immutable>> {
+    -name : String
+    -score : int
+    -level : int
+    -date : LocalDateTime
+    +compareTo(other : ScoreRecord) : int
+  }
+}
+
+package "service" {
+  interface GameControls {
+    +changeDirection(player : int, d : Direction)
+    +togglePause()
+    +startOrRestart()
+  }
+  interface GameListener {
+    +onUpdate(engine : GameEngine)
+    +onFoodEaten(engine : GameEngine, food : Food)
+    +onGameOver(engine : GameEngine)
+  }
+  class GameEngine {
+    -timer : javax.swing.Timer
+    -state : GameState
+    -players : List<Player>
+    -twoPlayerMode : boolean
+    +setLevel(level : LevelConfig)
+    +setTwoPlayerMode(on : boolean)
+    +getWinner() : Optional<Player>
+    +addGameListener(l : GameListener)
+    +getFoods() : List<Food>  <<unmodifiable>>
+    +getObstacles() : List<Obstacle>  <<unmodifiable>>
+  }
+  class SoundPlayer <<BONUS>> {
+    -enabled : boolean
+    +play(effect : SoundEffect)
+    +onFoodEaten(engine, food)
+    +onGameOver(engine)
+  }
+  class ScoreStatistics <<immutable>> {
+    +{static} of(history : List<ScoreRecord>) : ScoreStatistics
+    +getAverageByLevel() : Map<Integer, Double>
+    +getRecent(n : int) : List<ScoreRecord>
+  }
+}
+
+package "repository" {
+  interface HighScoreRepository {
+    +save(r : ScoreRecord)
+    +findAll() : List<ScoreRecord>
+    +findTop(n : int) : List<ScoreRecord>
+    +findRecent(n : int) : List<ScoreRecord>
+  }
+  class FileHighScoreRepository
+  class InMemoryHighScoreRepository
+}
+
+package "exception" {
+  class HighScoreException
+  class InvalidScoreRecordException
+}
+
+package "common" {
+  abstract class BaseWindow {
+    #menuBar, toolBar, statusBar
+    #{abstract} initUI()
+    #showAbout()
+    #setStatus(msg : String)
+    #addToolButton(icon, tip, action) : JButton
+  }
+}
+
+package "ui" {
+  class MainWindow {
+    -engine : GameEngine
+    -boardPanel : GameBoardPanel
+    -scores : HighScoreRepository
+    #initUI()
+    #showAbout()
+  }
+  class ChartWindow <<DISPOSE_ON_CLOSE>> {
+    +refresh()
+  }
+  class "GameBoardPanel" as GameBoardPanel <<panels>> {
+    #paintComponent(g : Graphics)
+    +onUpdate(engine : GameEngine)
+  }
+  class "ScoreChartsPanel" as ScoreChartsPanel <<panels>> {
+    +refresh()
+  }
+  class "GameOverDialog" as GameOverDialog <<dialogs>>
+  class "HighScoreDialog" as HighScoreDialog <<dialogs>>
+  class "AboutDialog" as AboutDialog <<dialogs>>
+  class "HighScoreTableModel" as HighScoreTableModel <<dialogs>>
+}
+
+package "util" {
+  class ChartHelper <<utility>> {
+    +{static} installTheme()
+    +{static} createRecentScoresChart(ds) : JFreeChart
+    +{static} createAverageByLevelChart(ds) : JFreeChart
+  }
+}
+
+' ---------- kế thừa / cài đặt ----------
+GameObject <|-- Snake
+GameObject <|-- Food
+GameObject <|-- Obstacle
+Food <|-- BonusFood
+Food <|-- PoisonFood
+GameListener <|.. SoundPlayer
+LevelConfig <|.. AbstractLevel
+AbstractLevel <|-- Level1
+AbstractLevel <|-- Level2
+AbstractLevel <|-- Level3
+GameControls <|.. GameEngine
+HighScoreRepository <|.. FileHighScoreRepository
+HighScoreRepository <|.. InMemoryHighScoreRepository
+java.lang.Exception <|-- HighScoreException
+java.lang.IllegalArgumentException <|-- InvalidScoreRecordException
+BaseWindow <|-- MainWindow
+javax.swing.JFrame <|-- BaseWindow
+javax.swing.JFrame <|-- ChartWindow
+javax.swing.JPanel <|-- GameBoardPanel
+javax.swing.JPanel <|-- ScoreChartsPanel
+javax.swing.JDialog <|-- GameOverDialog
+javax.swing.JDialog <|-- HighScoreDialog
+javax.swing.JDialog <|-- AboutDialog
+javax.swing.table.AbstractTableModel <|-- HighScoreTableModel
+GameListener <|.. GameBoardPanel
+GameListener <|.. MainWindow
+
+' ---------- composition / aggregation ----------
+GameEngine *-- "1..2" Player
+Player *-- Snake
+MainWindow *-- SoundPlayer
+Food ..> SoundEffect
+SoundPlayer ..> SoundEffect
+GameEngine *-- "0..*" Food
+GameEngine *-- "0..*" Obstacle
+GameEngine o-- LevelConfig
+GameEngine *-- GameState
+Snake *-- Direction
+MainWindow *-- GameEngine
+MainWindow *-- GameBoardPanel
+MainWindow o-- ChartWindow
+MainWindow o-- HighScoreRepository
+ChartWindow *-- ScoreChartsPanel
+Levels ..> LevelConfig
+ScoreStatistics ..> ScoreRecord
+ScoreChartsPanel ..> ScoreStatistics
+ScoreChartsPanel ..> ChartHelper
+HighScoreRepository ..> ScoreRecord
+HighScoreRepository ..> HighScoreException : throws
+GameBoardPanel ..> GameControls : phím → engine
+HighScoreDialog *-- HighScoreTableModel
+@enduml
