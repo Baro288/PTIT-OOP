@@ -17,7 +17,7 @@ Game 2D nhiều màn chơi, nhiều loại mồi (thường, thưởng, độc),
 | 8 | Nguyễn Đức Dương San | N20DCAT047 | Bước 7 – Biểu đồ JFreeChart | `ScoreStatistics`, `ChartHelper`, `ScoreChartsPanel`, `ChartWindow` |
 | 9 | Lưu Đức Đạt | N22DCCN019 | BONUS – Âm thanh, mồi độc, 2 người chơi | `PoisonFood`, `Player`, `SoundEffect`, `SoundPlayer` (+ phần 2 người chơi trong `GameEngine`, `GameBoardPanel`) |
 
-- Link Git: _(điền)_ · Link video demo: _(điền, nếu có)_
+- Link Git: (https://github.com/Baro288/PTIT-OOP)
 
 ## Yêu cầu
 
