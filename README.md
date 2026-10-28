@@ -9,7 +9,7 @@ Game 2D nhiều màn chơi, nhiều loại mồi (thường, thưởng, độc),
 |---|--------|------|----------------|---------------|
 | 1 | Võ Thành Huy Hoàng (nhóm trưởng) | N24DCAT030 | Khung ứng dụng + tích hợp, README, UML, Git | `Main`, `BaseWindow`, `MainWindow`, `AboutDialog` |
 | 2 | Ngô Minh Dũng | N24DCAT018 | Bước 1 – Đối tượng trong game | `GameObject`, `Snake`, `Food`, `BonusFood`, `Obstacle` |
-| 3 | Vũ Hoàng Quốc Anh | N24DCAT006 | Bước 2 + 5 – Enum, cấu hình, màn chơi | `Direction`, `GameState`, `GameConfig`, `LevelConfig`, `AbstractLevel`, `Level1`, `Level2`, `Level3`, `Levels` |
+| 3 | Vũ Hàn Quốc Anh | N24DCAT006 | Bước 2 + 5 – Enum, cấu hình, màn chơi | `Direction`, `GameState`, `GameConfig`, `LevelConfig`, `AbstractLevel`, `Level1`, `Level2`, `Level3`, `Levels` |
 | 4 | Vy Gia Bảo | N24DCAT009 | Bước 3 – Bàn chơi + Key Bindings | `GameBoardPanel`, `GameControls` |
 | 5 | Phạm Trung Hiếu | N24DCAT027 | Bước 4 – Bộ máy trò chơi (Timer, va chạm, tăng tốc) | `GameEngine`, `GameListener` |
 | 6 | Đoàn Quốc Thuận | N24DCAT077 | Bước 6A – Dữ liệu điểm, lưu file, ngoại lệ | `ScoreRecord`, `HighScoreRepository`, `FileHighScoreRepository`, `InMemoryHighScoreRepository`, `HighScoreException`, `InvalidScoreRecordException` |
